@@ -10,6 +10,10 @@ public class SudokuSolver {
 	private int[][] arr;
 	private Board board;
 
+	public Board getBoard() {
+		return board;
+	}
+
 	public void start() {
 		if (!readData()) {
 			System.out.println("Data source failed");
@@ -24,29 +28,20 @@ public class SudokuSolver {
 		return true;
 	}
 
-	private void reduceAvailableValues() {
+	public void reduceAvailableValues() {
 		reduceRow();
 		reduceColumn();
-
 		reduceSquare();
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!   " + board.getTiles()[1][0].getAvailable());
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!   " + board.getTiles()[2][0].getAvailable());
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!   " + board.getTiles()[4][0].getAvailable());
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!   " + board.getTiles()[6][0].getAvailable());
-
-
 	}
 
 	private void reduceRow() {
-		for (int i = 0; i < board.getTiles().length; i++) {
-			for (int j = 0; j < board.getTiles().length; j++) {
-				if (board.getTiles()[i][j].getAvailable() == null) {
-					for (int k = 0; k < board.getTiles().length; k++) {
-						if (board.getTiles()[k][j].getAvailable() != null) {
-							board.getTiles()[k][j].remove(board.getTiles()[i][j].getValue());
-							System.out.println("Som na pozicii " + i + " " + j);
-							System.out.println("Vymazavam " + board.getTiles()[i][j].getValue());
-							System.out.println("Ostalo " + board.getTiles()[k][j].getAvailable());
+		int size = board.getTiles().length;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (board.getTiles()[i][j].getAvailable() != null) {
+					for (int k = 0; k < size; k++) {
+						if (board.getTiles()[i][k].getValue() > 0) {
+							board.getTiles()[i][j].remove(board.getTiles()[i][k].getValue());
 						}
 					}
 				}
@@ -55,15 +50,13 @@ public class SudokuSolver {
 	}
 
 	private void reduceColumn() {
-		for (int i = 0; i < board.getTiles().length; i++) {
-			for (int j = 0; j < board.getTiles().length; j++) {
-				if (board.getTiles()[j][i].getAvailable() == null) {
-					for (int k = 0; k < board.getTiles().length; k++) {
-						if (board.getTiles()[j][k].getAvailable() != null) {
-							board.getTiles()[j][k].remove(board.getTiles()[j][i].getValue());
-							System.out.println("Som na pozicii " + j + " " + i);
-							System.out.println("Vymazavam " + board.getTiles()[j][i].getValue());
-							System.out.println("Ostalo " + board.getTiles()[j][k].getAvailable());
+		int size = board.getTiles().length;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (board.getTiles()[i][j].getAvailable() != null) {
+					for (int k = 0; k < size; k++) {
+						if (board.getTiles()[k][j].getValue() > 0) {
+							board.getTiles()[i][j].remove(board.getTiles()[k][j].getValue());
 						}
 					}
 				}
@@ -71,17 +64,58 @@ public class SudokuSolver {
 		}
 	}
 
+	/**
+	 * Method from Miroslav Jackanin
+	 */
 	private void reduceSquare() {
-		// 00-02 03-05 06-08
-		// 22	  25	28
+		int size = board.getTiles().length;
+		int k = 0, l = 0, m = 0, n = 0;
+		for (int i = 0; i < size; i += 3) {
+			for (int j = 0; j < size; j += 3) {
+				for (k += i; k < i + 3; k++) {
+					for (l += j; l < j + 3; l++) {
+						if (board.getTiles()[k][l].getAvailable() == null) {
+							for (m += i; m < i + 3; m++) {
+								for (n += j; n < j + 3; n++) {
+									if (board.getTiles()[m][n].getAvailable() != null) {
+										board.getTiles()[m][n].remove(board.getTiles()[k][l].getValue());
+									}
+								}
+								n = 0;
+							}
+							m = 0;
+						}
+					}
+					l = 0;
+				}
+				k = 0;
+			}
+		}
+	}
 
-		for (int i = 0; i < board.getTiles().length; i += 3) {
-			for (int j = 0; j < board.getTiles().length; j += 3) {
-				if (board.getTiles()[i][j].getAvailable() == null) {
-					
+	public void assignValues() {
+		int size = board.getTiles().length;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (board.getTiles()[i][j].getAvailable() != null
+						&& board.getTiles()[i][j].getAvailable().size() == 1) {
+					board.getTiles()[i][j].setValue(board.getTiles()[i][j].getAvailable().iterator().next());
+					board.getTiles()[i][j].remove(board.getTiles()[i][j].getValue());
 				}
 			}
 		}
 	}
 
+	public boolean checkCompletion() {
+		int size = board.getTiles().length;
+		int emptySpace = 0;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (board.getTiles()[i][j].getValue() == 0) {
+					emptySpace++;
+				}
+			}
+		}
+		return emptySpace == 0;
+	}
 }

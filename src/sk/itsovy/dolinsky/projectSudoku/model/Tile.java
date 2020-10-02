@@ -1,6 +1,8 @@
 package sk.itsovy.dolinsky.projectSudoku.model;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Martin Dolinsky
@@ -12,12 +14,11 @@ public class Tile {
 	public Tile(int value) {
 		this.value = value;
 		this.available = new HashSet<>();
-		if (value > 0){
+		if (value > 0) {
 			available = null;
-		}
-		else {
-			Integer[] temp = {1,2,3,4,5,6,7,8,9};
-			Collections.addAll(available,temp);
+		} else {
+			Integer[] temp = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+			Collections.addAll(available, temp);
 		}
 	}
 
